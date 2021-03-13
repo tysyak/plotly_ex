@@ -2,6 +2,15 @@ defmodule PlotlyEx do
   alias PlotlyEx.OneTimeServer
 
   @root_path File.cwd!()
+  @mathjax [
+    {:url, "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS-MML_SVG"},
+    {:local, "../assets/js/MathJax.js"}
+  ]
+  @ploty_js [
+    {:url, "https://cdn.plot.ly/plotly-latest.min.js"},
+    {:local, "../assets/js/plotly-latest.min.js"}
+  ]
+
 
   def plot(data, layout \\ %{}, config \\ %{}) do
     filepath    = Path.join([@root_path, "templates", "plot_region.html.eex"])
@@ -15,12 +24,12 @@ defmodule PlotlyEx do
   def show(plot_html, opts \\ []) do
     plotly_js_url =
       case Keyword.get(opts, :plotly_js_url) do
-        nil -> "https://cdn.plot.ly/plotly-latest.min.js"
+        nil -> if(File.exists?(@ploty_js[:local]), do: @ploty_js[:local], else: @ploty_js[:url] )
         url -> url
       end
     mathjax_js_url =
       case Keyword.get(opts, :mathjax_js_url) do
-        nil -> "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/MathJax.js?config=TeX-AMS-MML_SVG"
+        nil -> if(File.exists?(@mathjax[:local]), do: @mathjax[:local], else: @mathjax[:url] )
         url -> url
       end
     show_html = show_html(plot_html, plotly_js_url, mathjax_js_url)
